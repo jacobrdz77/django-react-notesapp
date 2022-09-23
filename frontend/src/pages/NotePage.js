@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ReactComponent as ArrowLeft } from "../assets/chevron-left.svg";
 
 const NotePage = () => {
   let { id } = useParams();
   const [note, setNote] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getNote = async () => {
@@ -14,9 +16,31 @@ const NotePage = () => {
     getNote();
   }, [id]);
 
+  const submitHandler = () => {
+    updateNote();
+    navigate("/");
+  };
+  const updateNote = async () => {
+    await fetch(`/api/notes/${id}/update`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(note),
+    });
+  };
+
   return (
-    <div>
-      <p>{note?.body}</p>
+    <div className="note">
+      <div className="note-header">
+        <h3>
+          <ArrowLeft onClick={submitHandler} />
+        </h3>
+      </div>
+      <textarea
+        onChange={(e) => setNote({ ...note, body: e.target.value })}
+        defaultValue={note?.body}
+      ></textarea>
     </div>
   );
 };

@@ -45,7 +45,7 @@ def getRoutes(request):
 @api_view(['GET'])
 def getNotes(request):
     # This is a list of python objects. You would need to serialize them into JSON format.
-    notes = Note.objects.all()
+    notes = Note.objects.all().order_by('-updated')
     serializer = NoteSerializers(notes,  many=True)
     return Response(serializer.data)
 
@@ -54,4 +54,15 @@ def getOneNote(request, pk):
     # This is a list of python objects. You would need to serialize them into JSON format.
     note = Note.objects.get(id=pk)
     serializer = NoteSerializers(note,  many=False)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+def updateNote(request, pk):
+    data = request.data
+    note = Note.objects.get(id=pk)
+    serializer = NoteSerializers(instance=note, data=data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        
     return Response(serializer.data)
